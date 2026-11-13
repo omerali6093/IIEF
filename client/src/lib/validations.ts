@@ -5,9 +5,10 @@ import { REQUIRE_CONTACT } from "./constants";
 export const patientSchema = z.object({
   fullName: z.string().trim().min(2, "name").max(100, "name"),
   age: z.coerce.number({ invalid_type_error: "age" }).int("age").min(18, "age").max(120, "age"),
-  ageGroup: z.string().trim().max(30).optional(),
-  bloodPressure: z.string().trim().max(30).optional(),
-  weightRange: z.string().trim().max(30).optional(),
+  ageGroup: z.string().min(1, "ageGroup"),
+  maritalStatus: z.string().min(1, "maritalStatus"),
+  tobaccoUse: z.string().min(1, "tobaccoUse"),
+  conditions: z.array(z.string()),
   contactNumber: REQUIRE_CONTACT
     ? z.string().trim().regex(/^[+\d][\d\s-]{6,17}$/, "contact")
     : z.string().trim().regex(/^([+\d][\d\s-]{6,17})?$/, "contact").optional(),
