@@ -105,8 +105,5 @@
     "unavailable": "PDF reports are available once the backend is connected.",
     "empty": "No result found for this session.",
     "disclaimer": "This assessment is a screening tool, not a diagnosis. Please discuss your result with a qualified doctor."
-  },
-  "footer": {
-    "disclaimer": "This tool does not replace medical advice, diagnosis or treatment. If you are worried about your health, speak to a doctor."
   }
 }
