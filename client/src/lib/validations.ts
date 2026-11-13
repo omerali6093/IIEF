@@ -11,7 +11,6 @@ export const patientSchema = z.object({
   contactNumber: REQUIRE_CONTACT
     ? z.string().trim().regex(/^[+\d][\d\s-]{6,17}$/, "contact")
     : z.string().trim().regex(/^([+\d][\d\s-]{6,17})?$/, "contact").optional(),
-  doctorCode: z.string().trim().max(20).optional(),
   consent: z.literal(true, { errorMap: () => ({ message: "consent" }) }),
 });
 export type PatientFormValues = z.infer<typeof patientSchema>;

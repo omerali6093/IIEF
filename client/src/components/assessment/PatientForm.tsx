@@ -5,24 +5,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { patientSchema, type PatientFormValues } from "@/lib/validations";
 import { useLanguage } from "@/hooks/useLanguage";
-import { verifyDoctorCode } from "@/services/patient.service";
 import { session } from "@/lib/session";
 
 export default function PatientForm() {
   const { t } = useLanguage();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
-  const { register, handleSubmit, setError, formState: { errors } } = useForm<PatientFormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<PatientFormValues>({
     resolver: zodResolver(patientSchema),
-    defaultValues: { fullName: "", age: 0, ageGroup: "", bloodPressure: "", weightRange: "", contactNumber: "", doctorCode: "" },
+    defaultValues: { fullName: "", age: 0, ageGroup: "", bloodPressure: "", weightRange: "", contactNumber: "" },
   });
   const err = (k?: string) => (k ? <p role="alert" className="mt-1.5 text-xs text-red-600">{t(`patient.errors.${k}`)}</p> : null);
 
   const onSubmit = async (v: PatientFormValues) => {
     setBusy(true);
-    if (v.doctorCode && !(await verifyDoctorCode(v.doctorCode))) {
-      setError("doctorCode", { message: "doctor" }); setBusy(false); return;
-    }
     session.clear();
     session.set("patient", v);
     router.push("/assessment/questions");
@@ -67,12 +63,6 @@ export default function PatientForm() {
         <label htmlFor="contact" className="mb-1.5 block text-sm font-semibold">{t("patient.contact")} <span className="font-normal text-muted">({t("patient.optional")})</span></label>
         <input id="contact" type="tel" dir="ltr" autoComplete="tel" className="field" {...register("contactNumber")} />
         {err(errors.contactNumber?.message)}
-      </div>
-      <div>
-        <label htmlFor="doctor" className="mb-1.5 block text-sm font-semibold">{t("patient.doctorCode")} <span className="font-normal text-muted">({t("patient.optional")})</span></label>
-        <input id="doctor" dir="ltr" placeholder="DR-XXXX" className="field uppercase" {...register("doctorCode")} />
-        <p className="mt-1.5 text-xs text-muted">{t("patient.doctorHint")}</p>
-        {err(errors.doctorCode?.message)}
       </div>
       <div>
         <label className="flex cursor-pointer items-start gap-3 text-sm">

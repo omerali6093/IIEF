@@ -5,6 +5,5 @@ export type PatientDetails = {
   bloodPressure?: string;
   weightRange?: string;
   contactNumber?: string;
-  doctorCode?: string;
   consent: true;
 };
