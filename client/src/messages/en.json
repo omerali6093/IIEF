@@ -16,7 +16,6 @@
     "title": "Your details",
     "subtitle": "We need a few details to prepare your report.",
     "name": "Full name", "age": "Age", "contact": "Contact number", "optional": "optional",
-    "doctorCode": "Doctor code", "doctorHint": "Only if your doctor gave you one.",
     "consent": "I agree to my information being stored securely and used to prepare my assessment report.",
     "continue": "Continue", "checking": "Checking…",
     "errors": {

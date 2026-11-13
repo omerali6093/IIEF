@@ -51,12 +51,7 @@ export default function PatientForm() {
           {err(errors.contactNumber?.message)}
         </div>
       </div>
-      <div>
-        <label htmlFor="doctor" className="mb-1.5 block text-sm font-semibold">{t("patient.doctorCode")} <span className="font-normal text-muted">({t("patient.optional")})</span></label>
-        <input id="doctor" dir="ltr" placeholder="DR-XXXX" className="field uppercase" {...register("doctorCode")} />
-        <p className="mt-1.5 text-xs text-muted">{t("patient.doctorHint")}</p>
-        {err(errors.doctorCode?.message)}
-      </div>
+      
       <div>
         <label className="flex cursor-pointer items-start gap-3 text-sm">
           <input type="checkbox" className="mt-1 h-4 w-4 accent-primary" {...register("consent")} />
