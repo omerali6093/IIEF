@@ -1,1 +1,9 @@
-export type PatientDetails = { fullName: string; age: number; contactNumber?: string; doctorCode?: string; consent: true };
+export type PatientDetails = {
+  fullName: string;
+  age: number;
+  ageGroup?: string;
+  bloodPressure?: string;
+  weightRange?: string;
+  contactNumber?: string;
+  consent: true;
+};

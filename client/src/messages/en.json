@@ -15,13 +15,19 @@
   "patient": {
     "title": "Your details",
     "subtitle": "We need a few details to prepare your report.",
-    "name": "Full name", "age": "Age", "contact": "Contact number", "optional": "optional",
+    "name": "Full name",
+    "age": "Age",
+    "ageGroup": "Age group",
+    "bloodPressure": "Blood pressure",
+    "weightRange": "Weight range",
+    "contact": "Contact number",
+    "optional": "optional",
     "consent": "I agree to my information being stored securely and used to prepare my assessment report.",
-    "continue": "Continue", "checking": "Checking…",
+    "continue": "Continue",
+    "checking": "Checking…",
     "errors": {
       "name": "Enter your full name.", "age": "Enter an age between 18 and 120.",
-      "contact": "Enter a valid contact number.", "consent": "Please agree to continue.",
-      "doctor": "This doctor code isn’t valid. Check it and try again, or leave it empty."
+      "contact": "Enter a valid contact number.", "consent": "Please agree to continue."
     }
   },
   "quiz": {
