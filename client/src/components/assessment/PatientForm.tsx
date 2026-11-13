@@ -14,7 +14,7 @@ export default function PatientForm() {
   const [busy, setBusy] = useState(false);
   const { register, handleSubmit, setError, formState: { errors } } = useForm<PatientFormValues>({
     resolver: zodResolver(patientSchema),
-    defaultValues: { fullName: "", contactNumber: "", doctorCode: "" },
+    defaultValues: { fullName: "", age: 0, ageGroup: "", bloodPressure: "", weightRange: "", contactNumber: "", doctorCode: "" },
   });
   const err = (k?: string) => (k ? <p role="alert" className="mt-1.5 text-xs text-red-600">{t(`patient.errors.${k}`)}</p> : null);
 
@@ -46,10 +46,27 @@ export default function PatientForm() {
           {err(errors.age?.message)}
         </div>
         <div>
-          <label htmlFor="contact" className="mb-1.5 block text-sm font-semibold">{t("patient.contact")} <span className="font-normal text-muted">({t("patient.optional")})</span></label>
-          <input id="contact" type="tel" dir="ltr" autoComplete="tel" className="field" {...register("contactNumber")} />
-          {err(errors.contactNumber?.message)}
+          <label htmlFor="ageGroup" className="mb-1.5 block text-sm font-semibold">{t("patient.ageGroup")}</label>
+          <input id="ageGroup" className="field" {...register("ageGroup")} />
+          {err(errors.ageGroup?.message)}
         </div>
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label htmlFor="bloodPressure" className="mb-1.5 block text-sm font-semibold">{t("patient.bloodPressure")}</label>
+          <input id="bloodPressure" className="field" {...register("bloodPressure")} />
+          {err(errors.bloodPressure?.message)}
+        </div>
+        <div>
+          <label htmlFor="weightRange" className="mb-1.5 block text-sm font-semibold">{t("patient.weightRange")}</label>
+          <input id="weightRange" className="field" {...register("weightRange")} />
+          {err(errors.weightRange?.message)}
+        </div>
+      </div>
+      <div>
+        <label htmlFor="contact" className="mb-1.5 block text-sm font-semibold">{t("patient.contact")} <span className="font-normal text-muted">({t("patient.optional")})</span></label>
+        <input id="contact" type="tel" dir="ltr" autoComplete="tel" className="field" {...register("contactNumber")} />
+        {err(errors.contactNumber?.message)}
       </div>
       <div>
         <label htmlFor="doctor" className="mb-1.5 block text-sm font-semibold">{t("patient.doctorCode")} <span className="font-normal text-muted">({t("patient.optional")})</span></label>
