@@ -1,0 +1,44 @@
+{
+  "app": { "name": "SHIM Check", "tagline": "IIEF-5 / SHIM self-assessment" },
+  "nav": { "language": "Language" },
+  "home": {
+    "title": "A private five-question check-in on erectile health",
+    "subtitle": "Answer five short questions and get your score with a clear interpretation. No account, no sign-up, about two minutes.",
+    "start": "Start assessment",
+    "stepsTitle": "What to expect",
+    "steps": [
+      { "t": "Tell us a little about you", "d": "Your name and age, so your report is yours." },
+      { "t": "Answer five questions", "d": "One at a time. You can go back and change an answer." },
+      { "t": "Get your result", "d": "View your score, download a PDF, or share it." }
+    ]
+  },
+  "patient": {
+    "title": "Your details",
+    "subtitle": "We need a few details to prepare your report.",
+    "name": "Full name", "age": "Age", "contact": "Contact number", "optional": "optional",
+    "doctorCode": "Doctor code", "doctorHint": "Only if your doctor gave you one.",
+    "consent": "I agree to my information being stored securely and used to prepare my assessment report.",
+    "continue": "Continue", "checking": "Checking…",
+    "errors": {
+      "name": "Enter your full name.", "age": "Enter an age between 18 and 120.",
+      "contact": "Enter a valid contact number.", "consent": "Please agree to continue.",
+      "doctor": "This doctor code isn’t valid. Check it and try again, or leave it empty."
+    }
+  },
+  "quiz": {
+    "question": "Question {n} of {total}", "previous": "Previous", "next": "Next",
+    "submit": "See my result", "submitting": "Calculating…", "choose": "Choose one answer to continue.",
+    "placeholderBanner": "Placeholder wording. Replace with clinician-approved text before real use.",
+    "error": "We couldn’t submit your answers. Please try again."
+  },
+  "result": {
+    "title": "Your assessment result", "date": "Assessment date", "name": "Patient", "score": "Total score",
+    "outOf": "out of 25", "interpretation": "Interpretation",
+    "download": "Download PDF", "whatsapp": "Share on WhatsApp", "again": "Start a new assessment",
+    "demoBanner": "Demo result. Scores are calculated by the server once the backend is connected, never in the browser.",
+    "unavailable": "PDF reports are available once the backend is connected.",
+    "empty": "No result found for this session.",
+    "disclaimer": "This assessment is a screening tool, not a diagnosis. Please discuss your result with a qualified doctor."
+  },
+  "footer": { "disclaimer": "This tool does not replace medical advice, diagnosis or treatment. If you are worried about your health, speak to a doctor." }
+}

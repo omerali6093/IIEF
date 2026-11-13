@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-canvas text-ink antialiased font-sans;
+}
+
+h1,
+h2,
+h3 {
+  @apply font-heading text-secondary;
+}
+
+[dir="rtl"] body {
+  line-height: 2;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3 {
+  line-height: 1.9;
+}
+
+:focus-visible {
+  outline: 3px solid #087F8C;
+  outline-offset: 2px;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-field px-6 py-3 text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-white shadow-card hover:bg-primary-dark;
+  }
+
+  .btn-ghost {
+    @apply btn border border-line bg-white text-secondary hover:bg-canvas;
+  }
+
+  .field {
+    @apply w-full rounded-field border border-line bg-white px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
+
+  .card {
+    @apply rounded-card border border-line bg-white shadow-card;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise .35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}
