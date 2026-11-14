@@ -1,6 +1,5 @@
-
 import { Router } from "express";
-import { getActiveQuestionnaire } from "../controllers/questionnaire.controller";
+import { getActiveQuestionnaire } from "../controllers/questionnaire.controller.js";
 
 const router = Router();
 

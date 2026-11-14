@@ -1,7 +1,12 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+
+import questionnaireRoutes from "./routes/questionnaire.routes.js";
 
 const app = express();
+
+app.use(helmet());
 
 app.use(
   cors({
@@ -11,8 +16,9 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
+// Health check
 app.get("/api/v1/health", (_req, res) => {
   res.status(200).json({
     success: true,
@@ -20,11 +26,18 @@ app.get("/api/v1/health", (_req, res) => {
   });
 });
 
-// Register API routes here.
-// Example:
-// app.use("/api/v1/questionnaires", questionnaireRoutes);
-// app.use("/api/v1/assessments", assessmentRoutes);
-// app.use("/api/v1/doctors", doctorRoutes);
-// app.use("/api/v1/reports", reportRoutes);
+// Questionnaire routes
+app.use(
+  "/api/v1/questionnaires",
+  questionnaireRoutes
+);
+
+// 404 handler
+app.use((_req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found.",
+  });
+});
 
 export default app;
