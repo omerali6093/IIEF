@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Questionnaire {
+  id        String     @id @default(uuid())
+  code      String
+  name      String
+  version   String
+  language  String
+  isActive  Boolean    @default(true)
+  questions Question[]
+
+  @@unique([code, version, language])
+}
+
+model Question {
+  id              String         @id @default(uuid())
+  questionnaireId String
+  questionNumber  Int
+  questionText    String
+  questionnaire   Questionnaire  @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+  options         AnswerOption[]
+
+  @@unique([questionnaireId, questionNumber])
+}
+
+model AnswerOption {
+  id          String   @id @default(uuid())
+  questionId  String
+  optionText  String
+  scoreValue  Int
+  optionOrder Int
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, optionOrder])
+}

@@ -3,8 +3,14 @@
   "version": "1.0.0",
   "description": "Express + TypeScript + PostgreSQL + Prisma backend. Per the PRD (section 16), build it only after the Phase 1 frontend is approved, and seed it only with clinician-approved questionnaire, scoring and Urdu translation data.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "prisma generate",
+    "server": "nodemon --exec tsx src/server.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -12,10 +18,11 @@
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.3.0",
-    "helmet": "^8.3.0"
+    "helmet": "^8.3.0",
+    "nodemon": "^3.1.14"
   },
   "devDependencies": {
-    "@prisma/client": "^7.10.1",
+    "@prisma/client": "^6.19.3",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.6",
     "@types/pg": "^8.23.1",
