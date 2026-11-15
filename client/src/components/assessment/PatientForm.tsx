@@ -27,8 +27,8 @@ export default function PatientForm() {
   } = useForm<PatientFormValues>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
-      fullName: "", contactNumber: "",
-      ageGroup: "", maritalStatus: "", tobaccoUse: "", conditions: [],
+     contactNumber: "", ageGroup: "", maritalStatus: "", 
+     tobaccoUse: "", conditions: [],
     },
   });
 
@@ -91,9 +91,12 @@ const onInvalid = (errors: FieldErrors<PatientFormValues>) => {
       </div>
 
       <div>
-        <label htmlFor="fullName" className="mb-1.5 block text-sm font-semibold">{t("patient.name")}</label>
-        <input id="fullName" autoComplete="name" className="field" {...register("fullName")} />
-        {err(errors.fullName?.message)}
+        <label htmlFor="contact" className="mb-1.5 block text-sm font-semibold">
+          {t("patient.contact")} 
+        </label>
+        <input id="contact" type="tel" dir="ltr" 
+        autoComplete="tel" className="field" {...register("contactNumber")} />
+        {err(errors.contactNumber?.message)}
       </div>
 
       
@@ -160,11 +163,7 @@ const onInvalid = (errors: FieldErrors<PatientFormValues>) => {
         </div>
       </fieldset>
 
-      <div>
-        <label htmlFor="contact" className="mb-1.5 block text-sm font-semibold">{t("patient.contact")} <span className="font-normal text-muted">({t("patient.optional")})</span></label>
-        <input id="contact" type="tel" dir="ltr" autoComplete="tel" className="field" {...register("contactNumber")} />
-        {err(errors.contactNumber?.message)}
-      </div>
+      
 
       <div>
         <label className="flex cursor-pointer items-start gap-3 text-sm">

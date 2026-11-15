@@ -29,7 +29,6 @@
   "patient": {
     "title": "Your details",
     "subtitle": "We need a few details to prepare your report.",
-    "name": "Full name",
     "selectOne": "Select one",
     "ageGroup": {
       "label": "Age group",
@@ -66,7 +65,6 @@
       }
     },
     "contact": "Contact number",
-    "optional": "optional",
     "consent": "I agree to my information being stored securely and used to prepare my assessment report.",
     "continue": "Continue",
     "checking": "Checking…",
