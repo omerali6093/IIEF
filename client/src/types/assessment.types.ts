@@ -1,5 +1,15 @@
+
 export type AssessmentResult = {
-  assessmentId: string; patientName: string; completedAt: string;
-  totalScore: number; interpretation: string; isDemo?: boolean;
+  assessmentId: string;
+  patientName: string;
+  completedAt: string;
+  reportAvailable: boolean;
+  isDemo?: boolean;
 };
-export type SubmitAnswersPayload = { answers: { questionId: string; answerOptionId: string }[] };
+
+export type SubmitAnswersPayload = {
+  answers: {
+    questionId: string;
+    answerOptionId: string;
+  }[];
+};

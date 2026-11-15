@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 
 import questionnaireRoutes from "./routes/questionnaire.routes.js";
+import assessmentRoutes from "./routes/assessment.routes.js";
 
 const app = express();
 
@@ -31,6 +32,11 @@ app.use(
   "/api/v1/questionnaires",
   questionnaireRoutes
 );
+
+app.use(
+  "/api/v1/assessments",
+  assessmentRoutes
+)
 
 // 404 handler
 app.use((_req, res) => {

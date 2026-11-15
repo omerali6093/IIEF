@@ -8,35 +8,80 @@ datasource db {
 }
 
 model Questionnaire {
-  id        String     @id @default(uuid())
-  code      String
-  name      String
-  version   String
-  language  String
-  isActive  Boolean    @default(true)
-  questions Question[]
+  id          String       @id @default(uuid())
+  code        String
+  name        String
+  version     String
+  language    String
+  isActive    Boolean      @default(true)
+  questions   Question[]
+  assessments Assessment[]
 
   @@unique([code, version, language])
 }
 
 model Question {
-  id              String         @id @default(uuid())
+  id              String             @id @default(uuid())
   questionnaireId String
   questionNumber  Int
   questionText    String
-  questionnaire   Questionnaire  @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+  questionnaire   Questionnaire      @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
   options         AnswerOption[]
+  answers         AssessmentAnswer[]
 
   @@unique([questionnaireId, questionNumber])
 }
 
 model AnswerOption {
-  id          String   @id @default(uuid())
+  id          String             @id @default(uuid())
   questionId  String
   optionText  String
   scoreValue  Int
   optionOrder Int
-  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question    Question           @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers     AssessmentAnswer[]
 
   @@unique([questionId, optionOrder])
+}
+
+model Patient {
+  id            String       @id @default(uuid())
+  fullName      String
+  age           Int
+  ageGroup      String?
+  bloodPressure String?
+  weightRange   String?
+  contactNumber String?
+  consent       Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  assessments   Assessment[]
+}
+
+model Assessment {
+  id              String   @id @default(uuid())
+  patientId       String
+  questionnaireId String
+  totalScore      Int
+  status          String   @default("COMPLETED")
+  completedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  patient       Patient            @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  questionnaire Questionnaire      @relation(fields: [questionnaireId], references: [id], onDelete: Restrict)
+  answers       AssessmentAnswer[]
+}
+
+model AssessmentAnswer {
+  id             String   @id @default(uuid())
+  assessmentId   String
+  questionId     String
+  answerOptionId String
+  scoreValue     Int
+  createdAt      DateTime @default(now())
+
+  assessment   Assessment   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  question     Question     @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  answerOption AnswerOption @relation(fields: [answerOptionId], references: [id], onDelete: Restrict)
+
+  @@unique([assessmentId, questionId])
 }
