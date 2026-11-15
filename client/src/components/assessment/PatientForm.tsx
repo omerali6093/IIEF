@@ -27,7 +27,7 @@ export default function PatientForm() {
   } = useForm<PatientFormValues>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
-      fullName: "", age: 0, contactNumber: "",
+      fullName: "", contactNumber: "",
       ageGroup: "", maritalStatus: "", tobaccoUse: "", conditions: [],
     },
   });
@@ -71,14 +71,7 @@ export default function PatientForm() {
         {err(errors.fullName?.message)}
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="age" className="mb-1.5 block text-sm font-semibold">{t("patient.age")}</label>
-          <input id="age" type="number" inputMode="numeric" className="field" {...register("age")} />
-          {err(errors.age?.message)}
-        </div>
-      </div>
-
+      
       {/* Age group */}
       <fieldset>
         <legend className="mb-1 text-sm font-semibold">{t("patient.ageGroup.label")}</legend>

@@ -30,7 +30,6 @@
     "title": "Your details",
     "subtitle": "We need a few details to prepare your report.",
     "name": "Full name",
-    "age": "Age",
     "selectOne": "Select one",
     "ageGroup": {
       "label": "Age group",
