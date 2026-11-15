@@ -1,3 +1,4 @@
+
 import { USE_MOCK } from "@/lib/constants";
 import { mockQuestionnaire } from "@/lib/mock-questionnaire";
 
@@ -8,7 +9,7 @@ import { api } from "./api";
 type QuestionnaireResponse = {
   success: boolean;
   message?: string;
-  data: Questionnaire;
+  data?: Questionnaire;
 };
 
 export async function getActiveQuestionnaire(): Promise<Questionnaire> {

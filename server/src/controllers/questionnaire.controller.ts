@@ -2,74 +2,58 @@
 import type { Request, Response } from "express";
 import prisma from "../config/db.js";
 
-type QuestionnaireOption = {
-  id: string;
-  optionText: string;
-  optionOrder: number;
-};
-
-type QuestionnaireQuestion = {
-  id: string;
-  questionNumber: number;
-  questionText: string;
-  options: QuestionnaireOption[];
-};
-
-type QuestionnaireVersion = {
-  id: string;
-  name: string;
-  version: string;
-  language: string;
-  questions: QuestionnaireQuestion[];
-};
-
 export async function getActiveQuestionnaire(
   _req: Request,
   res: Response
 ) {
   try {
-    const versions: QuestionnaireVersion[] =
-      await prisma.questionnaire.findMany({
-        where: {
-          code: "IIEF5",
-          isActive: true,
-          language: {
-            in: ["en", "ur"],
-          },
+    const versions = await prisma.questionnaire.findMany({
+      where: {
+        code: "IIEF5",
+        isActive: true,
+        language: {
+          in: ["en", "ur"],
         },
-        include: {
-          questions: {
-            orderBy: {
-              questionNumber: "asc",
-            },
-            include: {
-              options: {
-                orderBy: {
-                  optionOrder: "asc",
-                },
-                select: {
-                  id: true,
-                  optionText: true,
-                  optionOrder: true,
-                },
+      },
+
+      include: {
+        questions: {
+          orderBy: {
+            questionNumber: "asc",
+          },
+
+          include: {
+            options: {
+              orderBy: {
+                optionOrder: "asc",
+              },
+
+              select: {
+                id: true,
+                optionText: true,
+                optionOrder: true,
               },
             },
           },
         },
-      });
+      },
+    });
 
-    // Find matching English and Urdu versions.
-    const english = versions.find(
-      (item: QuestionnaireVersion) =>
-        item.language === "en" &&
-        versions.some(
-          (other: QuestionnaireVersion) =>
-            other.language === "ur" &&
-            other.version === item.version
-        )
+    const englishVersions = versions.filter(
+      (item) => item.language === "en"
     );
 
-    if (!english) {
+    const matchingPair = englishVersions.find((english) => {
+      const urdu = versions.find(
+        (item) =>
+          item.language === "ur" &&
+          item.version === english.version
+      );
+
+      return Boolean(urdu);
+    });
+
+    if (!matchingPair) {
       return res.status(404).json({
         success: false,
         message:
@@ -77,8 +61,10 @@ export async function getActiveQuestionnaire(
       });
     }
 
+    const english = matchingPair;
+
     const urdu = versions.find(
-      (item: QuestionnaireVersion) =>
+      (item) =>
         item.language === "ur" &&
         item.version === english.version
     );
@@ -101,57 +87,67 @@ export async function getActiveQuestionnaire(
       });
     }
 
-    const questions = english.questions.map(
-      (enQuestion: QuestionnaireQuestion) => {
-        const urQuestion = urdu.questions.find(
-          (question: QuestionnaireQuestion) =>
-            question.questionNumber ===
-            enQuestion.questionNumber
+    const questions = english.questions.map((enQuestion) => {
+      const urQuestion = urdu.questions.find(
+        (question) =>
+          question.questionNumber === enQuestion.questionNumber
+      );
+
+      if (!urQuestion) {
+        throw new Error(
+          `Missing Urdu translation for question ${enQuestion.questionNumber}.`
+        );
+      }
+
+      if (
+        enQuestion.options.length === 0 ||
+        enQuestion.options.length !== urQuestion.options.length
+      ) {
+        throw new Error(
+          `Answer option count mismatch in question ${enQuestion.questionNumber}.`
+        );
+      }
+
+      const options = enQuestion.options.map((enOption) => {
+        const urOption = urQuestion.options.find(
+          (option) =>
+            option.optionOrder === enOption.optionOrder
         );
 
-        if (!urQuestion) {
+        if (!urOption) {
           throw new Error(
-            `Missing Urdu translation for question ${enQuestion.questionNumber}.`
+            `Missing Urdu translation for question ${enQuestion.questionNumber}, option ${enOption.optionOrder}.`
           );
         }
 
-        const options = enQuestion.options.map(
-          (enOption: QuestionnaireOption) => {
-            const urOption = urQuestion.options.find(
-              (option: QuestionnaireOption) =>
-                option.optionOrder === enOption.optionOrder
-            );
-
-            if (!urOption) {
-              throw new Error(
-                `Missing Urdu translation for option ${enOption.optionOrder}.`
-              );
-            }
-
-            return {
-              id: enOption.id,
-              text: {
-                en: enOption.optionText,
-                ur: urOption.optionText,
-              },
-            };
-          }
-        );
-
         return {
-          id: enQuestion.id,
-          number: enQuestion.questionNumber,
+          // Canonical English option ID for both languages.
+          id: enOption.id,
+
           text: {
-            en: enQuestion.questionText,
-            ur: urQuestion.questionText,
+            en: enOption.optionText,
+            ur: urOption.optionText,
           },
-          options,
         };
-      }
-    );
+      });
+
+      return {
+        id: enQuestion.id,
+
+        number: enQuestion.questionNumber,
+
+        text: {
+          en: enQuestion.questionText,
+          ur: urQuestion.questionText,
+        },
+
+        options,
+      };
+    });
 
     return res.status(200).json({
       success: true,
+
       data: {
         id: english.id,
         name: english.name,

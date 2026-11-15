@@ -8,6 +8,7 @@
     "start": "tsx src/server.ts",
     "build": "tsc",
     "seed": "prisma db seed",
+    "validate": "npx prisma validate",
     "postinstall": "prisma generate"
   },
   "dependencies": {

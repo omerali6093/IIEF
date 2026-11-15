@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { patientSchema, type PatientFormValues } from "@/lib/validations";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -52,14 +52,39 @@ export default function PatientForm() {
     );
 
   const onSubmit = async (v: PatientFormValues) => {
+  console.log("PATIENT FORM SUBMITTED:", v);
+
+  try {
     setBusy(true);
+
     session.clear();
     session.set("patient", v);
+
+    console.log("Patient data saved:", session.get("patient"));
+
     router.push("/assessment/questions");
-  };
+
+    console.log("Navigation requested");
+  } catch (error) {
+    console.error("Patient form submission error:", error);
+    setBusy(false);
+  }
+};
+
+const onInvalid = (errors: FieldErrors<PatientFormValues>) => {
+  console.log("FORM VALIDATION FAILED:", errors);
+};
+  // const onSubmit = async (v: PatientFormValues) => {
+  //   setBusy(true);
+  //   session.clear();
+  //   session.set("patient", v);
+  //   router.push("/assessment/questions");
+  // };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="card mx-auto max-w-xl space-y-5 p-6 sm:p-8">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} 
+    noValidate 
+    className="card mx-auto max-w-xl space-y-5 p-6 sm:p-8">
       <div>
         <h1 className="text-2xl font-bold">{t("patient.title")}</h1>
         <p className="mt-1 text-sm text-muted">{t("patient.subtitle")}</p>
@@ -149,7 +174,10 @@ export default function PatientForm() {
         {err(errors.consent?.message)}
       </div>
 
-      <button type="submit" disabled={busy} className="btn-primary w-full">{busy ? t("patient.checking") : t("patient.continue")}</button>
+      <button type="submit" disabled={busy} 
+      className="btn-primary w-full">
+        {busy ? t("patient.checking") : t("patient.continue")}
+      </button>
     </form>
   );
 }
