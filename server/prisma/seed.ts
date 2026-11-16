@@ -399,7 +399,7 @@ async function seedLanguage(
 
     create: {
       code: "IIEF5",
-      name: "IIEF-5 / SHIM",
+      name: "IIEF-5",
       version: "1.0",
       language,
       isActive: true,
