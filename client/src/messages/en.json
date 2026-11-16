@@ -76,7 +76,8 @@
       "tobaccoUse": "Select your tobacco use.",
       "conditions": "Select at least one condition.",
       "contact": "Enter a valid contact number.",
-      "consent": "Please agree to continue."
+      "consent": "Please agree to continue.",
+      "incomplete": "Please complete all required fields before continuing."
     }
   },
   "quiz": {

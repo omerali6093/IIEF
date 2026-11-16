@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { patientSchema, type PatientFormValues } from "@/lib/validations";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -78,8 +78,8 @@ const onSubmit = async (v: PatientFormValues) => {
   }
 };
 
-const onInvalid = (errors: FieldErrors<PatientFormValues>) => {
-  console.log("FORM VALIDATION FAILED:", errors);
+const onInvalid = () => {
+  window.alert(t("patient.errors.incomplete"));
 };
   // const onSubmit = async (v: PatientFormValues) => {
   //   setBusy(true);
