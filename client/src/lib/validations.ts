@@ -8,7 +8,7 @@ export const patientSchema = z.object({
 
   tobaccoUse: z.string().min(1, 'tobaccoUse'),
 
-  conditions: z.array(z.string()),
+  conditions: z.array(z.string()).min(1, 'conditions'),
 
   contactNumber: REQUIRE_CONTACT
     ? z
@@ -22,7 +22,7 @@ export const patientSchema = z.object({
         .optional(),
 
   consent: z.boolean().refine(value => value === true, {
-    message: 'Consent is required.'
+    message: 'consent'
   })
 })
 
