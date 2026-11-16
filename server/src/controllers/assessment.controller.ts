@@ -1,248 +1,250 @@
 
-import type { Request, Response } from "express";
-import prisma from "../config/db.js";
+import type { Request, Response } from 'express'
+import { createHash, randomBytes } from 'node:crypto'
+
+import prisma from '../config/db.js'
 
 import {
   calculateTotalScore,
   getInterpretation,
   isSupportedLanguage,
-  type Language,
-} from "../services/assessment.service.js";
+  type Language
+} from '../services/assessment.service.js'
 
 type SubmitBody = {
-  language?: Language;
+  language?: Language
 
   patient?: {
-    contactNumber?: string;
-    ageGroup?: string;
-    maritalStatus?: string;
-    tobaccoUse?: string;
-    conditions?: string[];
-    consent?: boolean;
-  };
+    contactNumber?: string
+    ageGroup?: string
+    maritalStatus?: string
+    tobaccoUse?: string
+    conditions?: string[]
+    consent?: boolean
+  }
 
   answers?: {
-    questionId: string;
-    answerOptionId: string;
-  }[];
-};
+    questionId: string
+    answerOptionId: string
+  }[]
+}
 
-export async function submitAssessment(
-  req: Request,
-  res: Response
-) {
+const REPORT_TOKEN_VALIDITY_DAYS = 7
+
+function hashReportToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex')
+}
+
+export async function submitAssessment(req: Request, res: Response) {
   try {
-    const body = req.body as SubmitBody;
-    const patient = body.patient;
-    const answers = body.answers;
-    const language = body.language;
+    const body = req.body as SubmitBody
+    const patient = body.patient
+    const answers = body.answers
+    const language = body.language
 
-    // 1. Validate selected language
+    // 1. Validate language
     if (!isSupportedLanguage(language)) {
       return res.status(400).json({
         success: false,
-        message: "A valid language (en or ur) is required.",
-      });
+        message: 'A valid language (en or ur) is required.'
+      })
     }
 
     // 2. Validate patient details
     if (
       !patient ||
-      typeof patient.ageGroup !== "string" ||
+      typeof patient.ageGroup !== 'string' ||
       !patient.ageGroup.trim() ||
-      typeof patient.maritalStatus !== "string" ||
+      typeof patient.maritalStatus !== 'string' ||
       !patient.maritalStatus.trim() ||
-      typeof patient.tobaccoUse !== "string" ||
+      typeof patient.tobaccoUse !== 'string' ||
       !patient.tobaccoUse.trim() ||
       !Array.isArray(patient.conditions) ||
-      !patient.conditions.every(
-        (condition) => typeof condition === "string"
-      ) ||
+      !patient.conditions.every(condition => typeof condition === 'string') ||
       patient.consent !== true
     ) {
       return res.status(400).json({
         success: false,
-        message: "Valid patient details and consent are required.",
-      });
+        message: 'Valid patient details and consent are required.'
+      })
     }
 
-    // 3. Validate submitted answers
+    // 3. Store validated and trimmed patient values
+    const ageGroup = patient.ageGroup.trim()
+    const maritalStatus = patient.maritalStatus.trim()
+    const tobaccoUse = patient.tobaccoUse.trim()
+
+    // 4. Validate submitted answers
     if (
       !Array.isArray(answers) ||
       answers.length !== 5 ||
       answers.some(
-        (answer) =>
-          typeof answer.questionId !== "string" ||
+        answer =>
+          typeof answer.questionId !== 'string' ||
           !answer.questionId ||
-          typeof answer.answerOptionId !== "string" ||
+          typeof answer.answerOptionId !== 'string' ||
           !answer.answerOptionId
       ) ||
-      new Set(
-        answers.map((answer) => answer.questionId)
-      ).size !== 5
+      new Set(answers.map(answer => answer.questionId)).size !== 5
     ) {
       return res.status(400).json({
         success: false,
-        message: "Exactly five valid answers are required.",
-      });
+        message: 'Exactly five valid answers are required.'
+      })
     }
 
-    // 4. Perform database operations atomically
-    const result = await prisma.$transaction(async (tx) => {
-      // Load the questionnaire matching the selected language.
-      // English and Urdu questionnaires have their own question
-      // and answer-option IDs in the database.
+    // 5. Generate a secure report token
+    const reportAccessToken = randomBytes(32).toString('hex')
+
+    const reportAccessTokenHash = hashReportToken(reportAccessToken)
+
+    const reportAccessExpiresAt = new Date(
+      Date.now() + REPORT_TOKEN_VALIDITY_DAYS * 24 * 60 * 60 * 1000
+    )
+
+    // 6. Save assessment and answers in one transaction
+    const result = await prisma.$transaction(async tx => {
       const questionnaire = await tx.questionnaire.findFirst({
         where: {
-          code: "IIEF5",
+          code: 'IIEF5',
           language,
-          isActive: true,
+          isActive: true
         },
         include: {
           questions: {
             orderBy: {
-              questionNumber: "asc",
+              questionNumber: 'asc'
             },
             include: {
-              options: true,
-            },
-          },
-        },
-      });
+              options: true
+            }
+          }
+        }
+      })
 
-      if (
-        !questionnaire ||
-        questionnaire.questions.length !== 5
-      ) {
-        throw new Error("ACTIVE_QUESTIONNAIRE_NOT_FOUND");
+      if (!questionnaire || questionnaire.questions.length !== 5) {
+        throw new Error('ACTIVE_QUESTIONNAIRE_NOT_FOUND')
       }
 
-      // 5. Ensure submitted questions belong to this questionnaire
+      // 7. Validate question IDs
       const expectedQuestionIds = new Set(
-        questionnaire.questions.map(
-          (question) => question.id
-        )
-      );
+        questionnaire.questions.map(question => question.id)
+      )
 
-      if (
-        answers.some(
-          (answer) =>
-            !expectedQuestionIds.has(answer.questionId)
-        )
-      ) {
-        throw new Error("INVALID_QUESTION");
+      if (answers.some(answer => !expectedQuestionIds.has(answer.questionId))) {
+        throw new Error('INVALID_QUESTION')
       }
 
-      // 6. Validate options and retrieve trusted database scores
-      const savedAnswers = answers.map((answer) => {
+      // 8. Validate selected options and retrieve database scores
+      const savedAnswers = answers.map(answer => {
         const question = questionnaire.questions.find(
-          (item) => item.id === answer.questionId
-        );
+          item => item.id === answer.questionId
+        )
 
         const option = question?.options.find(
-          (item) => item.id === answer.answerOptionId
-        );
+          item => item.id === answer.answerOptionId
+        )
 
         if (!question || !option) {
-          throw new Error("INVALID_ANSWER_OPTION");
+          throw new Error('INVALID_ANSWER_OPTION')
         }
 
         return {
           questionId: question.id,
           answerOptionId: option.id,
-          scoreValue: option.scoreValue,
-        };
-      });
+          scoreValue: option.scoreValue
+        }
+      })
 
-      // 7. Calculate score.
-      // The calculation is identical for English and Urdu.
+      // 9. Calculate total score
       const totalScore = calculateTotalScore(
-        savedAnswers.map((answer) => answer.scoreValue)
-      );
+        savedAnswers.map(answer => answer.scoreValue)
+      )
 
-      // 8. Get interpretation in the selected language
-      const interpretation = getInterpretation(
-        totalScore,
-        language
-      );
+      // 10. Get interpretation
+      const interpretation = getInterpretation(totalScore, language)
 
-      // 9. Save patient information
+      // 11. Save patient
       const savedPatient = await tx.patient.create({
         data: {
-          contactNumber:
-            patient.contactNumber?.trim() || null,
-          ageGroup: patient.ageGroup,
-          maritalStatus: patient.maritalStatus,
-          tobaccoUse: patient.tobaccoUse,
+          contactNumber: patient.contactNumber?.trim() || null,
+          ageGroup,
+          maritalStatus,
+          tobaccoUse,
           conditions: patient.conditions,
-          consent: true,
-        },
-      });
+          consent: true
+        }
+      })
 
-      // 10. Save assessment, score, interpretation and answers
+      // 12. Save assessment and secure token hash
       const assessment = await tx.assessment.create({
         data: {
           patientId: savedPatient.id,
           questionnaireId: questionnaire.id,
           totalScore,
           interpretation,
-          status: "COMPLETED",
-          answers: {
-            create: savedAnswers,
-          },
-        },
-      });
+          status: 'COMPLETED',
 
-      // Never return totalScore to the patient-facing API.
+          reportAccessTokenHash,
+          reportAccessExpiresAt,
+
+          answers: {
+            create: savedAnswers
+          }
+        }
+      })
+
+      // Do not expose the numerical score in the patient result.
       return {
         assessmentId: assessment.id,
         interpretation: assessment.interpretation,
         completedAt: assessment.completedAt,
         language,
-      };
-    });
+        reportAccessToken,
+        reportAccessExpiresAt
+      }
+    })
 
-    // 11. Patient-safe response
     return res.status(201).json({
       success: true,
-      message: "Assessment completed successfully.",
-      data: result,
-    });
+      message: 'Assessment completed successfully.',
+      data: result
+    })
   } catch (error) {
-    console.error("Assessment submission failed:", error);
+    console.error('Assessment submission failed:', error)
 
     if (error instanceof Error) {
       const messages: Record<string, string> = {
         ACTIVE_QUESTIONNAIRE_NOT_FOUND:
-          "The active questionnaire could not be found.",
+          'The active questionnaire could not be found.',
 
         INVALID_QUESTION:
-          "One or more submitted questions are invalid.",
+          'One or more submitted questions are invalid.',
 
         INVALID_ANSWER_OPTION:
-          "One or more selected answer options are invalid.",
+          'One or more selected answer options are invalid.',
 
         EXACTLY_FIVE_SCORES_REQUIRED:
-          "Exactly five scores are required.",
+          'Exactly five scores are required.',
 
         INVALID_SCORE_VALUE:
-          "An invalid answer score was found.",
+          'An invalid answer score was found.',
 
         SCORE_RANGE_NOT_FOUND:
-          "The score interpretation could not be determined.",
-      };
+          'The score interpretation could not be determined.'
+      }
 
       if (messages[error.message]) {
         return res.status(400).json({
           success: false,
-          message: messages[error.message],
-        });
+          message: messages[error.message]
+        })
       }
     }
 
     return res.status(500).json({
       success: false,
-      message: "Unable to save the assessment. Please try again.",
-    });
+      message: 'Unable to save the assessment. Please try again.'
+    })
   }
 }

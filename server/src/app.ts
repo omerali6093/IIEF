@@ -1,9 +1,11 @@
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 
 import questionnaireRoutes from "./routes/questionnaire.routes.js";
 import assessmentRoutes from "./routes/assessment.routes.js";
+import reportRoutes from "./routes/report.routes.js";
 
 const app = express();
 
@@ -28,15 +30,13 @@ app.get("/api/v1/health", (_req, res) => {
 });
 
 // Questionnaire routes
-app.use(
-  "/api/v1/questionnaires",
-  questionnaireRoutes
-);
+app.use("/api/v1/questionnaires", questionnaireRoutes);
 
-app.use(
-  "/api/v1/assessments",
-  assessmentRoutes
-)
+// Assessment routes
+app.use("/api/v1/assessments", assessmentRoutes);
+
+// Report routes
+app.use("/api/v1/reports", reportRoutes);
 
 // 404 handler
 app.use((_req, res) => {
