@@ -69,6 +69,7 @@ model Assessment {
   patientId       String
   questionnaireId String
   totalScore      Int
+  interpretation  String   @default("PENDING_REVIEW")
   status          String   @default("COMPLETED")
   completedAt     DateTime @default(now())
   createdAt       DateTime @default(now())

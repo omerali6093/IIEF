@@ -1,5 +1,11 @@
+
 import type { Request, Response } from "express";
 import prisma from "../config/db.js";
+
+import {
+  calculateTotalScore,
+  getInterpretation,
+} from "../services/assessment.service.js";
 
 type SubmitBody = {
   patient?: {
@@ -8,7 +14,6 @@ type SubmitBody = {
     maritalStatus?: string;
     tobaccoUse?: string;
     conditions?: string[];
-    adultConfirmed?: boolean;
     consent?: boolean;
   };
 
@@ -18,12 +23,16 @@ type SubmitBody = {
   }[];
 };
 
-export async function submitAssessment(req: Request, res: Response) {
+export async function submitAssessment(
+  req: Request,
+  res: Response
+) {
   try {
     const body = req.body as SubmitBody;
     const patient = body.patient;
     const answers = body.answers;
 
+    // 1. Validate patient details
     if (
       !patient ||
       typeof patient.ageGroup !== "string" ||
@@ -36,24 +45,28 @@ export async function submitAssessment(req: Request, res: Response) {
       !patient.conditions.every(
         (condition) => typeof condition === "string"
       ) ||
-      patient.adultConfirmed !== true ||
       patient.consent !== true
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "Valid patient details, adult eligibility confirmation, and consent are required.",
+        message: "Valid patient details and consent are required.",
       });
     }
 
+    // 2. Validate submitted answers
     if (
       !Array.isArray(answers) ||
       answers.length !== 5 ||
       answers.some(
         (answer) =>
-          !answer.questionId || !answer.answerOptionId
+          typeof answer.questionId !== "string" ||
+          !answer.questionId ||
+          typeof answer.answerOptionId !== "string" ||
+          !answer.answerOptionId
       ) ||
-      new Set(answers.map((answer) => answer.questionId)).size !== 5
+      new Set(
+        answers.map((answer) => answer.questionId)
+      ).size !== 5
     ) {
       return res.status(400).json({
         success: false,
@@ -61,6 +74,7 @@ export async function submitAssessment(req: Request, res: Response) {
       });
     }
 
+    // 3. Perform database operations atomically
     const result = await prisma.$transaction(async (tx) => {
       const questionnaire = await tx.questionnaire.findFirst({
         where: {
@@ -70,28 +84,40 @@ export async function submitAssessment(req: Request, res: Response) {
         },
         include: {
           questions: {
-            orderBy: { questionNumber: "asc" },
-            include: { options: true },
+            orderBy: {
+              questionNumber: "asc",
+            },
+            include: {
+              options: true,
+            },
           },
         },
       });
 
-      if (!questionnaire || questionnaire.questions.length !== 5) {
+      if (
+        !questionnaire ||
+        questionnaire.questions.length !== 5
+      ) {
         throw new Error("ACTIVE_QUESTIONNAIRE_NOT_FOUND");
       }
 
+      // 4. Ensure submitted questions belong to this questionnaire
       const expectedQuestionIds = new Set(
-        questionnaire.questions.map((question) => question.id)
+        questionnaire.questions.map(
+          (question) => question.id
+        )
       );
 
       if (
         answers.some(
-          (answer) => !expectedQuestionIds.has(answer.questionId)
+          (answer) =>
+            !expectedQuestionIds.has(answer.questionId)
         )
       ) {
         throw new Error("INVALID_QUESTION");
       }
 
+      // 5. Validate options and retrieve trusted database scores
       const savedAnswers = answers.map((answer) => {
         const question = questionnaire.questions.find(
           (item) => item.id === answer.questionId
@@ -112,28 +138,34 @@ export async function submitAssessment(req: Request, res: Response) {
         };
       });
 
-      const totalScore = savedAnswers.reduce(
-        (sum, answer) => sum + answer.scoreValue,
-        0
+      // 6. Calculate the total score on the backend
+      const totalScore = calculateTotalScore(
+        savedAnswers.map((answer) => answer.scoreValue)
       );
 
+      // 7. Determine interpretation
+      const interpretation = getInterpretation(totalScore);
+
+      // 8. Save patient information
       const savedPatient = await tx.patient.create({
         data: {
-          contactNumber: patient.contactNumber?.trim() || null,
+          contactNumber:
+            patient.contactNumber?.trim() || null,
           ageGroup: patient.ageGroup,
           maritalStatus: patient.maritalStatus,
           tobaccoUse: patient.tobaccoUse,
           conditions: patient.conditions,
-          adultConfirmed: true,
           consent: true,
         },
       });
 
+      // 9. Save assessment, score, interpretation and answers
       const assessment = await tx.assessment.create({
         data: {
           patientId: savedPatient.id,
           questionnaireId: questionnaire.id,
           totalScore,
+          interpretation,
           status: "COMPLETED",
           answers: {
             create: savedAnswers,
@@ -141,19 +173,19 @@ export async function submitAssessment(req: Request, res: Response) {
         },
       });
 
+      // Never return totalScore to the patient-facing API
       return {
-        id: assessment.id,
+        assessmentId: assessment.id,
+        interpretation: assessment.interpretation,
         completedAt: assessment.completedAt,
       };
     });
 
+    // 10. Patient-safe response
     return res.status(201).json({
       success: true,
       message: "Assessment completed successfully.",
-      data: {
-        assessmentId: result.id,
-        completedAt: result.completedAt.toISOString(),
-      },
+      data: result,
     });
   } catch (error) {
     console.error("Assessment submission failed:", error);
@@ -167,7 +199,16 @@ export async function submitAssessment(req: Request, res: Response) {
           "One or more submitted questions are invalid.",
 
         INVALID_ANSWER_OPTION:
-          "One or more selected answers are invalid.",
+          "One or more selected answer options are invalid.",
+
+        EXACTLY_FIVE_SCORES_REQUIRED:
+          "Exactly five scores are required.",
+
+        INVALID_SCORE_VALUE:
+          "An invalid answer score was found.",
+
+        SCORE_RANGE_NOT_FOUND:
+          "The score interpretation could not be determined.",
       };
 
       if (messages[error.message]) {

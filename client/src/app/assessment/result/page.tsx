@@ -18,7 +18,9 @@ export default function ResultPage() {
     setResult(session.get<AssessmentResult>("result"));
   }, []);
 
-  if (result === undefined) return null;
+  if (result === undefined) {
+    return null;
+  }
 
   if (!result) {
     return (
@@ -44,10 +46,20 @@ export default function ResultPage() {
         </h1>
 
         <p className="text-sm leading-6 text-muted">
-          Your assessment has been successfully submitted and saved.
+          Your assessment has been successfully submitted.
         </p>
 
-        <div className="rounded-xl bg-gray-50 p-4 text-left">
+        <div className="rounded-xl bg-gray-50 p-5">
+          <p className="text-xs text-muted">
+            Your Assessment Result
+          </p>
+
+          <h2 className="mt-2 text-xl font-bold text-primary">
+            {result.interpretation}
+          </h2>
+        </div>
+
+        <div className="text-left">
           <p className="text-xs text-muted">
             Assessment Reference
           </p>
@@ -58,7 +70,9 @@ export default function ResultPage() {
         </div>
 
         <div className="text-left">
-          <p className="text-xs text-muted">Completed At</p>
+          <p className="text-xs text-muted">
+            Completed At
+          </p>
 
           <p className="mt-1 text-sm font-medium">
             {new Date(result.completedAt).toLocaleString()}
