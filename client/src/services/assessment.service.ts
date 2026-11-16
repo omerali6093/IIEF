@@ -1,3 +1,4 @@
+
 import { USE_MOCK } from "@/lib/constants";
 
 import type {
@@ -6,6 +7,7 @@ import type {
 } from "@/types/assessment.types";
 
 import type { PatientDetails } from "@/types/patient.types";
+import type { Lang } from "@/hooks/useLanguage";
 
 import { api } from "./api";
 
@@ -17,7 +19,8 @@ type AssessmentResponse = {
 
 export async function submitAssessment(
   patient: PatientDetails,
-  payload: SubmitAnswersPayload
+  payload: SubmitAnswersPayload,
+  language: Lang
 ): Promise<AssessmentResult> {
   if (USE_MOCK) {
     throw new Error(
@@ -32,6 +35,7 @@ export async function submitAssessment(
       body: JSON.stringify({
         patient,
         answers: payload.answers,
+        language,
       }),
     }
   );

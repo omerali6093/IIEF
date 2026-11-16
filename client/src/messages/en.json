@@ -89,18 +89,13 @@
     "error": "We couldn’t submit your answers. Please try again."
   },
   "result": {
-    "title": "Your assessment result",
-    "date": "Assessment date",
-    "name": "Patient",
-    "score": "Total score",
-    "outOf": "out of 25",
-    "interpretation": "Interpretation",
-    "download": "Download PDF",
-    "whatsapp": "Share on WhatsApp",
-    "again": "Start a new assessment",
-    "demoBanner": "Demo result. Scores are calculated by the server once the backend is connected, never in the browser.",
-    "unavailable": "PDF reports are available once the backend is connected.",
-    "empty": "No result found for this session.",
-    "disclaimer": "This assessment is a screening tool, not a diagnosis. Please discuss your result with a qualified doctor."
+    "title": "Assessment Completed",
+    "successMessage": "Your assessment has been successfully submitted.",
+    "interpretationTitle": "Your Assessment Result",
+    "reference": "Assessment Reference",
+    "completedAt": "Completed At",
+    "disclaimer": "This assessment result is for informational purposes and should be reviewed with a qualified healthcare professional.",
+    "empty": "No assessment result was found.",
+    "again": "Start Again"
   }
 }

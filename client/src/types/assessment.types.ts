@@ -1,7 +1,9 @@
+
 export type AssessmentResult = {
   assessmentId: string;
   interpretation: string;
   completedAt: string;
+  language: "en" | "ur";
   isDemo?: boolean;
 };
 

@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -17,9 +18,9 @@ import { USE_MOCK } from '@/lib/constants'
 import type { Questionnaire } from '@/types/questionnaire.types'
 import type { PatientDetails } from '@/types/patient.types'
 
-export default function QuestionsPage () {
+export default function QuestionsPage() {
   const router = useRouter()
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
 
   const [qn, setQn] = useState<Questionnaire | null>(null)
   const [patient, setPatient] = useState<PatientDetails | null>(null)
@@ -35,7 +36,7 @@ export default function QuestionsPage () {
   useEffect(() => {
     let active = true
 
-    async function loadQuestionnaire () {
+    async function loadQuestionnaire() {
       const patientData = session.get<PatientDetails>('patient')
 
       console.log('Patient data from session:', patientData)
@@ -90,7 +91,7 @@ export default function QuestionsPage () {
 
     const nextAnswers = {
       ...answers,
-      [question.id]: optionId
+      [question.id]: optionId,
     }
 
     setAnswers(nextAnswers)
@@ -111,7 +112,7 @@ export default function QuestionsPage () {
     const isLast = index === qn.questions.length - 1
 
     if (!isLast) {
-      setIndex(previous => previous + 1)
+      setIndex((previous) => previous + 1)
       return
     }
 
@@ -119,27 +120,33 @@ export default function QuestionsPage () {
     setFailed(false)
 
     try {
-      const result = await submitAssessment(patient, {
-        answers: qn.questions.map(question => ({
+      const payload = {
+        answers: qn.questions.map((question) => ({
           questionId: question.id,
-          answerOptionId: answers[question.id]
-        }))
-      })
+          answerOptionId: answers[question.id],
+        })),
+      }
+
+      const result = await submitAssessment(
+        patient,
+        payload,
+        lang
+      )
 
       session.set('result', result)
 
       router.push('/assessment/result')
     } catch (error) {
       console.error('Assessment submission failed:', error)
-
       setFailed(true)
+    } finally {
       setSubmitting(false)
     }
   }
 
   if (loading) {
     return (
-      <div className='py-20'>
+      <div className="py-20">
         <Loading />
       </div>
     )
@@ -147,18 +154,18 @@ export default function QuestionsPage () {
 
   if (failed && !qn) {
     return (
-      <div className='mx-auto max-w-xl rounded-xl border border-red-200 bg-red-50 p-6'>
-        <h2 className='font-semibold text-red-700'>
+      <div className="mx-auto max-w-xl rounded-xl border border-red-200 bg-red-50 p-6">
+        <h2 className="font-semibold text-red-700">
           Unable to load questionnaire
         </h2>
 
-        <p className='mt-2 text-sm text-red-600'>
+        <p className="mt-2 text-sm text-red-600">
           Please check your backend connection and try again.
         </p>
 
         <button
           onClick={() => window.location.reload()}
-          className='btn-primary mt-4'
+          className="btn-primary mt-4"
         >
           Try again
         </button>
@@ -171,13 +178,12 @@ export default function QuestionsPage () {
   }
 
   const question = qn.questions[index]
-
   const isLast = index === qn.questions.length - 1
 
   return (
     <>
       {USE_MOCK && (
-        <p className='mx-auto mb-4 max-w-2xl rounded-field bg-amber-50 px-4 py-2.5 text-xs text-amber-800'>
+        <p className="mx-auto mb-4 max-w-2xl rounded-field bg-amber-50 px-4 py-2.5 text-xs text-amber-800">
           {t('quiz.placeholderBanner')}
         </p>
       )}
@@ -187,7 +193,7 @@ export default function QuestionsPage () {
         total={qn.questions.length}
         value={answers[question.id]}
         onChange={choose}
-        onPrev={() => setIndex(previous => previous - 1)}
+        onPrev={() => setIndex((previous) => previous - 1)}
         onNext={next}
         isFirst={index === 0}
         isLast={isLast}

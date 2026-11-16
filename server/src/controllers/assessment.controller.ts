@@ -5,9 +5,13 @@ import prisma from "../config/db.js";
 import {
   calculateTotalScore,
   getInterpretation,
+  isSupportedLanguage,
+  type Language,
 } from "../services/assessment.service.js";
 
 type SubmitBody = {
+  language?: Language;
+
   patient?: {
     contactNumber?: string;
     ageGroup?: string;
@@ -31,8 +35,17 @@ export async function submitAssessment(
     const body = req.body as SubmitBody;
     const patient = body.patient;
     const answers = body.answers;
+    const language = body.language;
 
-    // 1. Validate patient details
+    // 1. Validate selected language
+    if (!isSupportedLanguage(language)) {
+      return res.status(400).json({
+        success: false,
+        message: "A valid language (en or ur) is required.",
+      });
+    }
+
+    // 2. Validate patient details
     if (
       !patient ||
       typeof patient.ageGroup !== "string" ||
@@ -53,7 +66,7 @@ export async function submitAssessment(
       });
     }
 
-    // 2. Validate submitted answers
+    // 3. Validate submitted answers
     if (
       !Array.isArray(answers) ||
       answers.length !== 5 ||
@@ -74,12 +87,15 @@ export async function submitAssessment(
       });
     }
 
-    // 3. Perform database operations atomically
+    // 4. Perform database operations atomically
     const result = await prisma.$transaction(async (tx) => {
+      // Load the questionnaire matching the selected language.
+      // English and Urdu questionnaires have their own question
+      // and answer-option IDs in the database.
       const questionnaire = await tx.questionnaire.findFirst({
         where: {
           code: "IIEF5",
-          language: "en",
+          language,
           isActive: true,
         },
         include: {
@@ -101,7 +117,7 @@ export async function submitAssessment(
         throw new Error("ACTIVE_QUESTIONNAIRE_NOT_FOUND");
       }
 
-      // 4. Ensure submitted questions belong to this questionnaire
+      // 5. Ensure submitted questions belong to this questionnaire
       const expectedQuestionIds = new Set(
         questionnaire.questions.map(
           (question) => question.id
@@ -117,7 +133,7 @@ export async function submitAssessment(
         throw new Error("INVALID_QUESTION");
       }
 
-      // 5. Validate options and retrieve trusted database scores
+      // 6. Validate options and retrieve trusted database scores
       const savedAnswers = answers.map((answer) => {
         const question = questionnaire.questions.find(
           (item) => item.id === answer.questionId
@@ -138,15 +154,19 @@ export async function submitAssessment(
         };
       });
 
-      // 6. Calculate the total score on the backend
+      // 7. Calculate score.
+      // The calculation is identical for English and Urdu.
       const totalScore = calculateTotalScore(
         savedAnswers.map((answer) => answer.scoreValue)
       );
 
-      // 7. Determine interpretation
-      const interpretation = getInterpretation(totalScore);
+      // 8. Get interpretation in the selected language
+      const interpretation = getInterpretation(
+        totalScore,
+        language
+      );
 
-      // 8. Save patient information
+      // 9. Save patient information
       const savedPatient = await tx.patient.create({
         data: {
           contactNumber:
@@ -159,7 +179,7 @@ export async function submitAssessment(
         },
       });
 
-      // 9. Save assessment, score, interpretation and answers
+      // 10. Save assessment, score, interpretation and answers
       const assessment = await tx.assessment.create({
         data: {
           patientId: savedPatient.id,
@@ -173,15 +193,16 @@ export async function submitAssessment(
         },
       });
 
-      // Never return totalScore to the patient-facing API
+      // Never return totalScore to the patient-facing API.
       return {
         assessmentId: assessment.id,
         interpretation: assessment.interpretation,
         completedAt: assessment.completedAt,
+        language,
       };
     });
 
-    // 10. Patient-safe response
+    // 11. Patient-safe response
     return res.status(201).json({
       success: true,
       message: "Assessment completed successfully.",
