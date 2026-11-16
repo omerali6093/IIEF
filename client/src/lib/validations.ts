@@ -1,12 +1,12 @@
-import { z } from "zod";
-import { REQUIRE_CONTACT } from "./constants";
+import { z } from 'zod'
+import { REQUIRE_CONTACT } from './constants'
 
 export const patientSchema = z.object({
-  ageGroup: z.string().min(1, "ageGroup"),
+  ageGroup: z.string().min(1, 'ageGroup'),
 
-  maritalStatus: z.string().min(1, "maritalStatus"),
+  maritalStatus: z.string().min(1, 'maritalStatus'),
 
-  tobaccoUse: z.string().min(1, "tobaccoUse"),
+  tobaccoUse: z.string().min(1, 'tobaccoUse'),
 
   conditions: z.array(z.string()),
 
@@ -14,19 +14,16 @@ export const patientSchema = z.object({
     ? z
         .string()
         .trim()
-        .regex(/^[+\d][\d\s-]{6,17}$/, "contact")
+        .regex(/^[+\d][\d\s-]{6,17}$/, 'contact')
     : z
         .string()
         .trim()
-        .regex(/^([+\d][\d\s-]{6,17})?$/, "contact")
+        .regex(/^([+\d][\d\s-]{6,17})?$/, 'contact')
         .optional(),
 
-  
-  consent: z.literal(true, {
-    errorMap: () => ({
-      message: "consent",
-    }),
-  }),
-});
+  consent: z.boolean().refine(value => value === true, {
+    message: 'Consent is required.'
+  })
+})
 
-export type PatientFormValues = z.infer<typeof patientSchema>;
+export type PatientFormValues = z.infer<typeof patientSchema>

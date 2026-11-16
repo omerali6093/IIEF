@@ -7,7 +7,7 @@ import { patientSchema, type PatientFormValues } from "@/lib/validations";
 import { useLanguage } from "@/hooks/useLanguage";
 import { session } from "@/lib/session";
 
-const AGE_GROUPS = ["30_31", "31_44", "50_60", "51_66", "60_plus"] as const;
+const AGE_GROUPS = ["25_30", "31_40", "41_50", "51_60", "60_plus"] as const;
 const MARITAL = ["married", "unmarried"] as const;
 const TOBACCO = ["never", "former", "current"] as const;
 const CONDITIONS = ["diabetes", "hypertension", "bph"] as const;

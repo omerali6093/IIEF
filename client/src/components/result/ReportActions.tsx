@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
-import { fetchReportPdf } from "@/services/report.service";
+import { getAssessmentPdf } from "@/services/report.service";
 
 export default function ReportActions({ assessmentId }: { assessmentId: string }) {
   const { t } = useLanguage();
@@ -9,7 +9,7 @@ export default function ReportActions({ assessmentId }: { assessmentId: string }
 
   const download = async () => {
     try {
-      const blob = await fetchReportPdf(assessmentId);
+      const blob = await getAssessmentPdf(assessmentId);
       const url = URL.createObjectURL(blob);
       Object.assign(document.createElement("a"), { href: url, download: "assessment-report.pdf" }).click();
       URL.revokeObjectURL(url);
@@ -17,7 +17,7 @@ export default function ReportActions({ assessmentId }: { assessmentId: string }
   };
   const share = async () => {
     try {
-      const blob = await fetchReportPdf(assessmentId);
+      const blob = await getAssessmentPdf(assessmentId);
       const file = new File([blob], "assessment-report.pdf", { type: "application/pdf" });
       if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file] });
       else await download(); // fallback: download so the patient can attach it manually

@@ -33,10 +33,10 @@
     "ageGroup": {
       "label": "Age group",
       "options": {
-        "30_31": "30 – 31 years",
-        "31_44": "31 – 44 years",
-        "50_60": "50 – 60 years",
-        "51_66": "51 – 66 years",
+        "25_30": "25 – 30 years",
+        "31_40": "31 – 40 years",
+        "41_50": "50 – 60 years",
+        "51_60": "51 – 60 years",
         "60_plus": "Over 60 years"
       }
     },

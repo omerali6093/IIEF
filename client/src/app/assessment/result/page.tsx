@@ -8,6 +8,8 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { session } from "@/lib/session";
 import type { AssessmentResult } from "@/types/assessment.types";
 
+import ReportActions from "@/components/assessment/ReportActions";
+
 export default function ResultPage() {
   const { t, lang } = useLanguage();
 
@@ -51,12 +53,10 @@ export default function ResultPage() {
       className="rise mx-auto max-w-2xl space-y-5"
     >
       <div className="card space-y-5 p-6 text-center sm:p-8">
-        {/* Success icon */}
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-3xl text-green-600">
           ✓
         </div>
 
-        {/* Heading */}
         <h1 className="text-2xl font-bold sm:text-3xl">
           {t("result.title")}
         </h1>
@@ -65,7 +65,6 @@ export default function ResultPage() {
           {t("result.successMessage")}
         </p>
 
-        {/* Interpretation */}
         <div className="rounded-xl bg-gray-50 p-5">
           <p className="text-xs text-muted">
             {t("result.interpretationTitle")}
@@ -76,7 +75,6 @@ export default function ResultPage() {
           </h2>
         </div>
 
-        {/* Assessment reference */}
         <div className={isUrdu ? "text-right" : "text-left"}>
           <p className="text-xs text-muted">
             {t("result.reference")}
@@ -90,7 +88,6 @@ export default function ResultPage() {
           </p>
         </div>
 
-        {/* Completion date */}
         <div className={isUrdu ? "text-right" : "text-left"}>
           <p className="text-xs text-muted">
             {t("result.completedAt")}
@@ -105,12 +102,22 @@ export default function ResultPage() {
         </div>
       </div>
 
-      {/* Disclaimer */}
+      {/* PDF download and WhatsApp sharing */}
+      <div className="card space-y-4 p-5">
+        <h2 className="text-lg font-semibold">
+          Report Actions
+        </h2>
+
+        <ReportActions
+          assessmentId={result.assessmentId}
+          reportAccessToken={result.reportAccessToken}
+        />
+      </div>
+
       <p className="text-xs leading-relaxed text-muted">
         {t("result.disclaimer")}
       </p>
 
-      {/* Start again */}
       <Link
         href="/"
         onClick={() => session.clear()}

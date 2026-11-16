@@ -40,8 +40,6 @@ export default function QuestionsPage() {
       const patientData = session.get<PatientDetails>('patient')
 
       console.log('Patient data from session:', patientData)
-      console.log('Age:', patientData?.age)
-      console.log('Age type:', typeof patientData?.age)
       console.log('Consent:', patientData?.consent)
       console.log('Consent type:', typeof patientData?.consent)
 
