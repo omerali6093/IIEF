@@ -454,6 +454,10 @@ async function main() {
     async (tx: Prisma.TransactionClient) => {
       await seedLanguage(tx, "en");
       await seedLanguage(tx, "ur");
+    },
+    {
+      maxWait: 10000,
+      timeout: 30000,
     }
   );
 

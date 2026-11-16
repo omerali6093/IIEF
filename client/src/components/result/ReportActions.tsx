@@ -4,13 +4,19 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { getAssessmentPdf } from "@/services/report.service";
 import { FaWhatsapp } from "react-icons/fa";
 
-export default function ReportActions({ assessmentId }: { assessmentId: string }) {
+export default function ReportActions({
+  assessmentId,
+  reportAccessToken = "",
+}: {
+  assessmentId: string;
+  reportAccessToken?: string;
+}) {
   const { t } = useLanguage();
   const [note, setNote] = useState("");
 
   const download = async () => {
     try {
-      const blob = await getAssessmentPdf(assessmentId);
+      const blob = await getAssessmentPdf(assessmentId, reportAccessToken);
       const url = URL.createObjectURL(blob);
       Object.assign(document.createElement("a"), { href: url, download: "assessment-report.pdf" }).click();
       URL.revokeObjectURL(url);
@@ -18,7 +24,7 @@ export default function ReportActions({ assessmentId }: { assessmentId: string }
   };
   const share = async () => {
     try {
-      const blob = await getAssessmentPdf(assessmentId);
+      const blob = await getAssessmentPdf(assessmentId, reportAccessToken);
       const file = new File([blob], "assessment-report.pdf", { type: "application/pdf" });
       if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file] });
       else await download(); // fallback: download so the patient can attach it manually
