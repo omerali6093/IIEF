@@ -13,12 +13,20 @@ export default function Hero () {
         <p className='mt-5 max-w-xl text-base text-muted sm:text-lg'>
           {t('home.subtitle')}
         </p>
-        <Link
-          href='/assessment/patient-details'
-          className='btn-primary mt-8 !px-8 !py-4 text-base'
-        >
-          {t('home.start')}
-        </Link>
+        <div className='mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap'>
+          <Link
+            href='/assessment/patient-details'
+            className='btn-primary w-full !px-8 !py-4 text-base sm:w-auto'
+          >
+            {t('home.start')}
+          </Link>
+          <Link
+            href='/'
+            className='btn-primary w-full !px-8 !py-4 text-base sm:w-auto'
+          >
+            {t('home.doctorBtn')}
+          </Link>
+        </div>
       </div>
       <ol className='card divide-y divide-line'>
         <li className='rounded-t-card bg-primary-soft px-6 py-4 font-heading text-sm font-bold text-primary-dark'>

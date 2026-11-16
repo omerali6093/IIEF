@@ -65,7 +65,7 @@ export default function ResultPage() {
           {t("result.successMessage")}
         </p>
 
-        <div className="rounded-xl bg-gray-50 p-5">
+        <div className="rounded-xl bg-surface p-5">
           <p className="text-xs text-muted">
             {t("result.interpretationTitle")}
           </p>
@@ -75,18 +75,7 @@ export default function ResultPage() {
           </h2>
         </div>
 
-        <div className={isUrdu ? "text-right" : "text-left"}>
-          <p className="text-xs text-muted">
-            {t("result.reference")}
-          </p>
-
-          <p
-            dir="ltr"
-            className="mt-1 break-all text-sm font-semibold"
-          >
-            {result.assessmentId}
-          </p>
-        </div>
+        
 
         <div className={isUrdu ? "text-right" : "text-left"}>
           <p className="text-xs text-muted">
@@ -114,9 +103,7 @@ export default function ResultPage() {
         />
       </div>
 
-      <p className="text-xs leading-relaxed text-muted">
-        {t("result.disclaimer")}
-      </p>
+      
 
       <Link
         href="/"

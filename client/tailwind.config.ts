@@ -4,12 +4,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: { DEFAULT: "#087F8C", dark: "#066772", soft: "#E6F4F5" },
-        secondary: "#17324D",
-        canvas: "#F8FAFB",
-        ink: "#263746",
-        muted: "#718096",
-        line: "#E5E7EB",
+        primary: { DEFAULT: "#002070", dark: "#00358F", soft: "#E0F7FC" },
+        secondary: "#172554",
+        canvas: "#FFFFFF",
+        surface: "#F4F8FC",
+        light: "#E8F4FA",
+        cyan: { DEFAULT: "#00D8F0", focus: "#00BFEA" },
+        accent: "#8B24D6",
+        ink: "#334155",
+        muted: "#64748B",
+        placeholder: "#94A3B8",
+        line: "#DCE5EF",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "var(--font-urdu)", "system-ui", "sans-serif"],

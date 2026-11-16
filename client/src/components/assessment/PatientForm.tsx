@@ -14,7 +14,7 @@ const CONDITIONS = ["diabetes", "hypertension", "bph"] as const;
 
 const optionClass = (on: boolean) =>
   `flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm transition ${
-    on ? "border-primary bg-primary/5" : "border-gray-200 hover:border-gray-300"
+    on ? "border-primary bg-primary-soft text-secondary" : "border-line hover:border-primary/40"
   }`;
 
 export default function PatientForm() {

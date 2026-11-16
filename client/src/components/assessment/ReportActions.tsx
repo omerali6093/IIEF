@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { getAssessmentPdf } from '@/services/report.service'
+import { FaWhatsapp, FaFileDownload } from 'react-icons/fa'
 
 type Props = {
   assessmentId: string
@@ -106,31 +107,36 @@ export default function ReportActions ({
         type='button'
         onClick={handleDownload}
         disabled={loading}
-        className='btn-primary block w-full disabled:opacity-60'
+        className='inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-[#E53935] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-red-500/20 transition-all duration-300 hover:-translate-y-1 hover:bg-[#C62828] hover:shadow-lg hover:shadow-red-500/30 active:scale-95 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-md'
       >
-        {loading ? 'Preparing...' : 'Download as PDF'}
+        <FaFileDownload className='text-xl' />
+        <span>{loading ? 'Preparing...' : 'Download as PDF'}</span>
       </button>
 
       <button
         type='button'
         onClick={handlePrepareShare}
         disabled={loading || !!pdfFile}
-        className='btn-primary block w-full disabled:opacity-60'
+        className='inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-green-500/20 transition-all duration-300 hover:-translate-y-1 hover:bg-[#1EBE5D] hover:shadow-lg hover:shadow-green-500/30 active:scale-95 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-md'
       >
-        {loading
-          ? 'Preparing PDF...'
-          : pdfFile
-          ? 'PDF Ready to Share'
-          : 'Prepare PDF for WhatsApp'}
+        <FaWhatsapp className='text-xl' />
+        <span>
+          {loading
+            ? 'Preparing PDF...'
+            : pdfFile
+            ? 'PDF Ready to Share'
+            : 'Prepare PDF for WhatsApp'}
+        </span>
       </button>
 
       {pdfFile && (
         <button
           type='button'
           onClick={handleShare}
-          className='btn-primary block w-full'
+          className='inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-green-500/20 transition-all duration-300 hover:-translate-y-1 hover:bg-[#1EBE5D] hover:shadow-lg hover:shadow-green-500/30 active:scale-95'
         >
-          Share PDF on WhatsApp
+          <FaWhatsapp className='text-xl' />
+          <span>Share PDF on WhatsApp</span>
         </button>
       )}
 

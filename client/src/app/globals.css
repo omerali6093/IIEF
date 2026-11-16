@@ -7,7 +7,7 @@ html {
 }
 
 body {
-  @apply bg-canvas text-ink antialiased font-sans;
+  @apply bg-white text-ink antialiased font-sans;
 }
 
 h1,
@@ -27,7 +27,7 @@ h3 {
 }
 
 :focus-visible {
-  outline: 3px solid #087F8C;
+  outline: 3px solid #00BFEA;
   outline-offset: 2px;
 }
 
@@ -41,11 +41,11 @@ h3 {
   }
 
   .btn-ghost {
-    @apply btn border border-line bg-white text-secondary hover:bg-canvas;
+    @apply btn border border-line bg-white text-secondary hover:bg-surface;
   }
 
   .field {
-    @apply w-full rounded-field border border-line bg-white px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
+    @apply w-full rounded-field border border-line bg-white px-4 py-3 text-sm outline-none transition focus:border-cyan-focus focus:ring-2 focus:ring-cyan/20;
   }
 
   .card {
