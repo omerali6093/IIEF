@@ -1,15 +1,32 @@
 import { z } from "zod";
 import { REQUIRE_CONTACT } from "./constants";
 
-// Messages are translation keys resolved in the form.
 export const patientSchema = z.object({
   ageGroup: z.string().min(1, "ageGroup"),
+
   maritalStatus: z.string().min(1, "maritalStatus"),
+
   tobaccoUse: z.string().min(1, "tobaccoUse"),
+
   conditions: z.array(z.string()),
+
   contactNumber: REQUIRE_CONTACT
-    ? z.string().trim().regex(/^[+\d][\d\s-]{6,17}$/, "contact")
-    : z.string().trim().regex(/^([+\d][\d\s-]{6,17})?$/, "contact").optional(),
-  consent: z.literal(true, { errorMap: () => ({ message: "consent" }) }),
+    ? z
+        .string()
+        .trim()
+        .regex(/^[+\d][\d\s-]{6,17}$/, "contact")
+    : z
+        .string()
+        .trim()
+        .regex(/^([+\d][\d\s-]{6,17})?$/, "contact")
+        .optional(),
+
+  
+  consent: z.literal(true, {
+    errorMap: () => ({
+      message: "consent",
+    }),
+  }),
 });
+
 export type PatientFormValues = z.infer<typeof patientSchema>;

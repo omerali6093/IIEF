@@ -27,8 +27,12 @@ export default function PatientForm() {
   } = useForm<PatientFormValues>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
-     contactNumber: "", ageGroup: "", maritalStatus: "", 
-     tobaccoUse: "", conditions: [],
+     contactNumber: "", 
+     ageGroup: "", 
+     maritalStatus: "", 
+     tobaccoUse: "",
+     conditions: [], 
+     consent: false,
     },
   });
 
@@ -51,20 +55,23 @@ export default function PatientForm() {
       { shouldDirty: true }
     );
 
-  const onSubmit = async (v: PatientFormValues) => {
-  console.log("PATIENT FORM SUBMITTED:", v);
-
+const onSubmit = async (v: PatientFormValues) => {
   try {
     setBusy(true);
 
     session.clear();
-    session.set("patient", v);
 
-    console.log("Patient data saved:", session.get("patient"));
+    session.set("patient", {
+      contactNumber: v.contactNumber,
+      ageGroup: v.ageGroup,
+      maritalStatus: v.maritalStatus,
+      tobaccoUse: v.tobaccoUse,
+      conditions: v.conditions,
+      adultConfirmed: true,
+      consent: true,
+    });
 
     router.push("/assessment/questions");
-
-    console.log("Navigation requested");
   } catch (error) {
     console.error("Patient form submission error:", error);
     setBusy(false);

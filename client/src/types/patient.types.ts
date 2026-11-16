@@ -1,9 +1,9 @@
 export type PatientDetails = {
-  fullName: string;
-  age: number;
-  ageGroup?: string;
-  bloodPressure?: string;
-  weightRange?: string;
   contactNumber?: string;
+  ageGroup: string;
+  maritalStatus: string;
+  tobaccoUse: string;
+  conditions: string[];
+  adultConfirmed: true;
   consent: true;
 };

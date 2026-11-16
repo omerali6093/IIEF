@@ -45,16 +45,23 @@ model AnswerOption {
 }
 
 model Patient {
-  id            String       @id @default(uuid())
-  fullName      String
-  age           Int
-  ageGroup      String?
-  bloodPressure String?
-  weightRange   String?
+  id String @id @default(uuid())
+
+  // Legacy fields retained as optional for existing database records.
+  fullName String?
+  age      Int?
+
   contactNumber String?
-  consent       Boolean      @default(false)
-  createdAt     DateTime     @default(now())
-  assessments   Assessment[]
+  ageGroup      String
+  maritalStatus String
+  tobaccoUse    String
+  conditions    String[] @default([])
+
+  adultConfirmed Boolean @default(false)
+  consent        Boolean @default(false)
+
+  createdAt   DateTime     @default(now())
+  assessments Assessment[]
 }
 
 model Assessment {

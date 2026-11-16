@@ -1,15 +1,10 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import ResultSummary from "@/components/result/ResultSummary";
-import ReportActions from "@/components/result/ReportActions";
-
 import { useLanguage } from "@/hooks/useLanguage";
 import { session } from "@/lib/session";
-
 import type { AssessmentResult } from "@/types/assessment.types";
 
 export default function ResultPage() {
@@ -23,9 +18,7 @@ export default function ResultPage() {
     setResult(session.get<AssessmentResult>("result"));
   }, []);
 
-  if (result === undefined) {
-    return null;
-  }
+  if (result === undefined) return null;
 
   if (!result) {
     return (
@@ -41,7 +34,7 @@ export default function ResultPage() {
 
   return (
     <div className="rise mx-auto max-w-2xl space-y-5">
-      <div className="card space-y-4 p-6 text-center sm:p-8">
+      <div className="card space-y-5 p-6 text-center sm:p-8">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-3xl text-green-600">
           ✓
         </div>
@@ -51,15 +44,27 @@ export default function ResultPage() {
         </h1>
 
         <p className="text-sm leading-6 text-muted">
-          Your assessment has been successfully submitted
-          and saved. Your report can be accessed using
-          the available report actions.
+          Your assessment has been successfully submitted and saved.
         </p>
+
+        <div className="rounded-xl bg-gray-50 p-4 text-left">
+          <p className="text-xs text-muted">
+            Assessment Reference
+          </p>
+
+          <p className="mt-1 break-all text-sm font-semibold">
+            {result.assessmentId}
+          </p>
+        </div>
+
+        <div className="text-left">
+          <p className="text-xs text-muted">Completed At</p>
+
+          <p className="mt-1 text-sm font-medium">
+            {new Date(result.completedAt).toLocaleString()}
+          </p>
+        </div>
       </div>
-
-      <ResultSummary result={result} />
-
-      <ReportActions assessmentId={result.assessmentId} />
 
       <p className="text-xs leading-relaxed text-muted">
         {t("result.disclaimer")}

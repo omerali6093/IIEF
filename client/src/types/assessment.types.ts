@@ -1,9 +1,7 @@
 
 export type AssessmentResult = {
   assessmentId: string;
-  patientName: string;
   completedAt: string;
-  reportAvailable: boolean;
   isDemo?: boolean;
 };
 

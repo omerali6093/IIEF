@@ -1,10 +1,12 @@
-
 import { USE_MOCK } from "@/lib/constants";
+
 import type {
   AssessmentResult,
   SubmitAnswersPayload,
 } from "@/types/assessment.types";
+
 import type { PatientDetails } from "@/types/patient.types";
+
 import { api } from "./api";
 
 type AssessmentResponse = {
@@ -19,17 +21,20 @@ export async function submitAssessment(
 ): Promise<AssessmentResult> {
   if (USE_MOCK) {
     throw new Error(
-      "Mock mode is enabled. Disable USE_MOCK to submit a real assessment."
+      "Mock mode is enabled. Disable it to submit a real assessment."
     );
   }
 
-  const response = await api<AssessmentResponse>("/assessments", {
-    method: "POST",
-    body: JSON.stringify({
-      patient,
-      answers: payload.answers,
-    }),
-  });
+  const response = await api<AssessmentResponse>(
+    "/assessments",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        patient,
+        answers: payload.answers,
+      }),
+    }
+  );
 
   if (!response.success || !response.data) {
     throw new Error(
