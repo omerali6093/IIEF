@@ -52,7 +52,7 @@ export default function PatientForm() {
     setValue(
       "conditions",
       conditions.includes(value) ? conditions.filter((c) => c !== value) : [...conditions, value],
-      { shouldDirty: true }
+      { shouldDirty: true, shouldValidate: true }
     );
 
 const onSubmit = async (v: PatientFormValues) => {
@@ -168,6 +168,7 @@ const onInvalid = (errors: FieldErrors<PatientFormValues>) => {
             </label>
           ))}
         </div>
+        {err(errors.conditions?.message)}
       </fieldset>
 
       

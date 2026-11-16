@@ -74,6 +74,7 @@
       "ageGroup": "Select your age group.",
       "maritalStatus": "Select your marital status.",
       "tobaccoUse": "Select your tobacco use.",
+      "conditions": "Select at least one condition.",
       "contact": "Enter a valid contact number.",
       "consent": "Please agree to continue."
     }
